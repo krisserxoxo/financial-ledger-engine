@@ -1,0 +1,16 @@
+# Composer dependencies
+/vendor/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Pest/PHPUnit cache
+.phpunit.result.cache
+
+# Log files
+*.log

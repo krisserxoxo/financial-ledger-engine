@@ -1,0 +1,33 @@
+{
+    "name": "ledger/engine",
+    "description": "Financial Ledger Engine",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Ledger\\Domain\\Ledger\\": "src/Domain/Ledger/",
+            "Ledger\\Domain\\Account\\": "src/Domain/Account/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Kristoffer Vorup",
+            "email": "vorup12345@hotmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "pestphp/pest": "^4.3",
+        "pestphp/pest-plugin-arch": "^4.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
