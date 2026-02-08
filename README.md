@@ -6,7 +6,6 @@ This is a hobby project implementing a **financial ledger engine** in PHP, desig
 
 - Account creation with optional locked period
 - Deposits and withdrawals with business rules:
-
   - Cannot withdraw more than available balance
   - Cannot withdraw from locked accounts
 - Historical balance calculation at any date
@@ -14,11 +13,18 @@ This is a hobby project implementing a **financial ledger engine** in PHP, desig
 - Monthly interest calculation (compound interest)
 - Automatic recalculation of future interest after historical changes
 - Idempotent interest runs (safe re-processing of periods)
+- Retroactive corrections via correction transactions, maintaining audit trail
+- Account wrapper (`Account` class) for ledger operations
+- TDD coverage with Pest for:
+  - Account operations (`AccountTest`)
+  - Ledger history and balance (`HistoricBalanceTest`)
+  - Interest calculation (`InterestTest` and `InterestIdempotencyTest`)
+  - Retroactive corrections (`CorrectionTest` and `CorrectionViaAccountTest`)
+  - Recalculation logic after past transaction changes (`RecalculationTest`)
 
 ## Planned Features
 
-- Retroactive corrections via correction transactions
-- Audit logging of all events
+- Full audit logging of all events
 - Integration with a persistence layer / database
 
 ## Purpose
