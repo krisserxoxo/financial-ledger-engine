@@ -13,10 +13,10 @@ This is a hobby project implementing a **financial ledger engine** in PHP, desig
 - Immutable ledger: transactions are never changed
 - Monthly interest calculation (compound interest)
 - Automatic recalculation of future interest after historical changes
+- Idempotent interest runs (safe re-processing of periods)
 
 ## Planned Features
 
-- Idempotent interest runs (safe re-processing of periods)
 - Retroactive corrections via correction transactions
 - Audit logging of all events
 - Integration with a persistence layer / database
