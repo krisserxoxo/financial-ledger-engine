@@ -3,7 +3,6 @@
 namespace Ledger\Domain\Account;
 
 use Ledger\Domain\Ledger\Ledger;
-use Ledger\Domain\Ledger\Transaction;
 use Ledger\Domain\Account\Exceptions\InsufficientFundsException;
 use Ledger\Domain\Account\Exceptions\AccountLockedException;
 use Ledger\Domain\Audit\AuditLog;
@@ -59,11 +58,6 @@ class Account
         $this->ledger->runMonthlyInterest($date, $rate);
     }
 
-    public function correctTransaction(string $date, float $oldAmount, float $newAmount): void
-    {
-        $this->ledger->correctTransaction($date, $oldAmount, $newAmount);
-    }
-
     public function correctTransactionById(string $transactionId, float $newAmount): void
     {
         $this->ledger->correctTransactionById($transactionId, $newAmount);
@@ -71,7 +65,7 @@ class Account
 
     public function getTransactionById(string $transactionId): ?\Ledger\Domain\Ledger\Transaction
     {
-        return $this->getTransactionById($transactionId);
+        return $this->ledger->getTransactionById($transactionId);
     }
 
     public function getAllTransactions(): array

@@ -148,7 +148,7 @@ class Ledger
         return null;
     }
 
-    // Korreger transaktion ved at benytte ID i stedet for at matche med amount
+    // Korreger transaktion ved at benytte ID i stedet for at matche med amount og dato
     public function correctTransactionById(string $transactionId, float $newAmount, float $rate = 0.01): void
     {
         $original = $this->getTransactionById($transactionId);
@@ -183,41 +183,6 @@ class Ledger
 
         $this->recalculateMonthlyInterestFrom($original->date, $rate);
 
-    }
-
-    // DEPRECATED - Gammel metode til at korregere transaktioner
-    public function correctTransaction(string $date, float $oldAmount, float $newAmount, float $rate = 0.01): void
-    {
-        // Find transaktion med date og old amount
-        $original = null;
-
-        foreach ($this->transactions as $transaction) {
-            if ($transaction->date === $date && $transaction->amount === $oldAmount) {
-                $original = $transaction;
-                break;
-            }
-        }
-
-        if (!$original) {
-            throw new \Exception("Transaction not found");
-        }
-
-        $this->correctTransactionById($original->id, $newAmount, $rate);
-    }
-
-    public function correctDeposit(string $date, float $oldAmount, float $newAmount): void
-    {
-        $difference = $newAmount - $oldAmount;
-
-        // modpost (immutability, der ændres ikke på originalen)
-        $this->transactions[] = new Transaction(
-            $date,
-            $difference,
-            Transaction::TYPE_DEPOSIT
-        );
-
-        // renter efter denne dato skal genberegnes
-        $this->recalculateMonthlyInterestFrom($date, 0.01);
     }
 
     public function hasMoreTransactionsThan(int $count): bool
