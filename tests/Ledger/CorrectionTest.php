@@ -22,8 +22,13 @@ final class CorrectionTest extends TestCase
 
         $balanceBefore = $ledger->getBalanceAt('2026-02-28');
 
+        // find deposit transaction ID
+        $transactions = $ledger->getAllTransactions();
+        $depositTx = $transactions[0];
+        $depositId = $depositTx->id;
+
         // Vi opdager at januar deposit skulle have været 800
-        $ledger->correctDeposit('2026-01-01', 1000, 800);
+        $ledger->correctTransactionById($depositId, 800);
 
         $balanceAfter = $ledger->getBalanceAt('2026-02-28');
 

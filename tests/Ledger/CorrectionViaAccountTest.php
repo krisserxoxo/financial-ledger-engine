@@ -12,8 +12,18 @@ it('correction via account keeps audit trail intact', function () {
     $account->runMonthlyInterest('2024-01-31', 0.01);
     $balanceBefore = $account->balance();
 
-    // hævningen rettes til 400
-    $account->correctTransaction('2024-01-10', -200, -400);
+    // find transaktions ID for hævningen
+    $transactions = $account->getAllTransactions();
+    $withdrawalTx = null;
+    foreach ($transactions as $tx) {
+        if ($tx->date === '2024-01-10' && $tx->type === 'withdrawal') {
+            $withdrawalTx = $tx;
+            break;
+        }
+    }
+
+    // hævningen rettes fra -200 til -400
+    $account->correctTransactionById($withdrawalTx->id, -400);
 
     $balanceAfter = $account->balance();
 

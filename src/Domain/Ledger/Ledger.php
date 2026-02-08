@@ -138,8 +138,57 @@ class Ledger
         }
     }
 
+    public function getTransactionById(string $id): ?Transaction
+    {
+        foreach ($this->transactions as $tx) {
+            if ($tx->id === $id) {
+                return $tx;
+            }
+        }
+        return null;
+    }
+
+    // Korreger transaktion ved at benytte ID i stedet for at matche med amount
+    public function correctTransactionById(string $transactionId, float $newAmount, float $rate = 0.01): void
+    {
+        $original = $this->getTransactionById($transactionId);
+
+        if (!$original) {
+            throw new \Exception("Transaction with ID '{$transactionId}' not found");
+        }
+
+        $oldAmount = $original->amount;
+        $difference = $newAmount - $oldAmount;
+
+        if ($difference != 0) {
+            $correctionTx = new Transaction(
+                $original->date,
+                $difference,
+                Transaction::TYPE_CORRECTION,
+                null,
+                $transactionId
+            );
+
+            $this->transactions[] = $correctionTx;
+
+            $this->audit->add('correction', [
+                'transaction_id' => $transactionId,
+                'date' => $original->date,
+                'old_amount' => $oldAmount,
+                'new_amount' => $newAmount,
+                'difference' => $difference,
+                'correction_id' => $correctionTx->id,
+            ]);
+        }
+
+        $this->recalculateMonthlyInterestFrom($original->date, $rate);
+
+    }
+
+    // DEPRECATED - Gammel metode til at korregere transaktioner
     public function correctTransaction(string $date, float $oldAmount, float $newAmount, float $rate = 0.01): void
     {
+        // Find transaktion med date og old amount
         $original = null;
 
         foreach ($this->transactions as $transaction) {
@@ -153,26 +202,7 @@ class Ledger
             throw new \Exception("Transaction not found");
         }
 
-        // difference bliver en ny immutable transaction
-         $difference = $newAmount - $oldAmount;
-
-         if ($difference != 0) {
-            $this->transactions[] = new Transaction(
-                $date,
-                $difference,
-                Transaction::TYPE_CORRECTION
-            );
-
-            $this->audit->add('correction', [
-                'date' => $date,
-                'old_amount' => $oldAmount,
-                'new_amount' => $newAmount,
-                'difference' => $difference,
-            ]);
-         }
-
-         // historien ændrer sig = renter skal genberegnes
-         $this->recalculateMonthlyInterestFrom($date, $rate);
+        $this->correctTransactionById($original->id, $newAmount, $rate);
     }
 
     public function correctDeposit(string $date, float $oldAmount, float $newAmount): void
@@ -198,5 +228,10 @@ class Ledger
     public function transactionCount(): int
     {
         return count($this->transactions);
+    }
+
+    public function getAllTransactions(): array
+    {
+        return $this->transactions;
     }
 }

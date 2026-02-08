@@ -4,6 +4,7 @@ namespace Ledger\Domain\Ledger;
 
 class Transaction
 {
+    public string $id;
     public string $date; // yyyy-mm-dd format
     public float $amount;
     public string $type;
@@ -20,12 +21,19 @@ class Transaction
         float $amount, 
         string $type = self::TYPE_DEPOSIT, 
         ?string $period = null,
-        ?string $correctionOf = null
+        ?string $correctionOf = null,
+        ?string $id = null
     ) {
+        $this->id = $id ?? $this->generateId();
         $this->date = $date;
         $this->amount = $amount;
         $this->type = $type;
         $this->period = $period ?? '';
         $this->correctionOf = $correctionOf;
+    }
+
+    private function generateId(): string
+    {
+        return uniqid('txn_', true);
     }
 }

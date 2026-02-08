@@ -64,6 +64,21 @@ class Account
         $this->ledger->correctTransaction($date, $oldAmount, $newAmount);
     }
 
+    public function correctTransactionById(string $transactionId, float $newAmount): void
+    {
+        $this->ledger->correctTransactionById($transactionId, $newAmount);
+    }
+
+    public function getTransactionById(string $transactionId): ?\Ledger\Domain\Ledger\Transaction
+    {
+        return $this->getTransactionById($transactionId);
+    }
+
+    public function getAllTransactions(): array
+    {
+        return $this->ledger->getAllTransactions();
+    }
+
     public function balance(?string $date = null): float
     {
         if ($date === null) {
