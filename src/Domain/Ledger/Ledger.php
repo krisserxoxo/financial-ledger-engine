@@ -78,29 +78,74 @@ class Ledger
 
     public function recalculateMonthlyInterestFrom(string $fromDate, float $rate): void
     {
-        // 1. fjern fremtidige renter
-        $this->removeInterestTransactionsFrom($fromDate);
+        // 1. find sidste renteperiode før der slettes
+        $lastInterestDate = null;
 
-        // 2. find sidste transaktionsdato
-        $dates = array_map(fn ($t) => $t->date, $this->transactions);
-
-        if (empty($dates)) {
-            return;
+        foreach ($this->transactions as $t) {
+            if ($t->type === Transaction::TYPE_INTEREST) {
+                if ($lastInterestDate === null || $t->date > $lastInterestDate) {
+                    $lastInterestDate = $t->date;
+                }
+            }
         }
 
-        sort($dates);
-        $lastDate = end($dates);
+        if ($lastInterestDate === null) {
+            return;
+        }
+        
+        // 2. fjern fremtidige renter
+        $this->removeInterestTransactionsFrom($fromDate);
 
-        // 3. start fra månedsslut efter fromDate
+        // 3. genberegn samme perioder igen
         $current = new \DateTime($fromDate);
         $current->modify('last day of this month');
 
-        $end = new \DateTime($lastDate);
-        $end->modify('last day of this month');
+        $end = new \DateTime($lastInterestDate);
 
         while ($current <= $end) {
             $this->runMonthlyInterest($current->format('Y-m-d'), $rate);
             $current->modify('last day of next month');
         }
+    }
+
+    public function correctTransaction(string $transactionId, float $newAmount, string $date): void
+    {
+        // find original transaction
+        $original = $this->transactions[$transactionId] ?? null;
+        if (!$original) {
+            throw new \Exception("Transaction not found");
+        }
+
+        // opret korrektion
+        $this->transactions[] = new Transaction(
+            $date,
+            $newAmount - $original->amount, // beløb der skal justeres
+            $original->type,
+            $original->period,
+            $transactionId // reference til original
+        );
+
+        // genberegn renter fra correction-dato
+        $this->recalculateMonthlyInterestFrom($date, 0.01);
+    }
+
+    public function correctDeposit(string $date, float $oldAmount, float $newAmount): void
+    {
+        $difference = $newAmount - $oldAmount;
+
+        // modpost (immutability, der ændres ikke på originalen)
+        $this->transactions[] = new Transaction(
+            $date,
+            $difference,
+            Transaction::TYPE_DEPOSIT
+        );
+
+        // renter efter denne dato skal genberegnes
+        $this->recalculateMonthlyInterestFrom($date, 0.01);
+    }
+
+    public function hasMoreTransactionsThan(int $count): bool
+    {
+        return count($this->transactions) > $count;
     }
 }

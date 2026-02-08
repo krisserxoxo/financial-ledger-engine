@@ -8,16 +8,23 @@ class Transaction
     public float $amount;
     public string $type;
     public string $period; // yyyy-mm
+    public ?string $correctionOf; // id på transaktion som denne korrigerer
 
     public const TYPE_DEPOSIT = 'deposit';
     public const TYPE_WITHDRAWAL = 'withdrawal';
     public const TYPE_INTEREST = 'interest';
 
-    public function __construct(string $date, float $amount, string $type = self::TYPE_DEPOSIT, ?string $period = null)
-    {
+    public function __construct(
+        string $date, 
+        float $amount, 
+        string $type = self::TYPE_DEPOSIT, 
+        ?string $period = null,
+        ?string $correctionOf = null
+    ) {
         $this->date = $date;
         $this->amount = $amount;
         $this->type = $type;
         $this->period = $period ?? '';
+        $this->correctionOf = $correctionOf;
     }
 }
