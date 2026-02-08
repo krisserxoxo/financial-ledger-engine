@@ -13,6 +13,7 @@ class Transaction
     public const TYPE_DEPOSIT = 'deposit';
     public const TYPE_WITHDRAWAL = 'withdrawal';
     public const TYPE_INTEREST = 'interest';
+    public const TYPE_CORRECTION = 'correction';
 
     public function __construct(
         string $date, 
