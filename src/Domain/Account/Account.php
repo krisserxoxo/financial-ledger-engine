@@ -7,6 +7,7 @@ use Ledger\Domain\Account\Exceptions\InsufficientFundsException;
 use Ledger\Domain\Account\Exceptions\AccountLockedException;
 use Ledger\Domain\Audit\AuditLog;
 
+// Account klasse - repræsenterer en bankkonto
 class Account
 {
     public string $createdAt;
@@ -30,11 +31,13 @@ class Account
         return $this->ledger->getAuditLog();
     }
 
+    // Foretager en indbetaling
     public function deposit(float $amount, string $date): void
     {
         $this->ledger->deposit($amount, $date);
     }
 
+    //Foretager en udbetaling såfremt kontoen ikke er låst og saldoen er tilstrækkelig
     public function withdraw(float $amount, string $date): void
     {
         if ($this->lockedUntil !== null && $date < $this->lockedUntil) {
@@ -48,26 +51,31 @@ class Account
         $this->ledger->withdraw($amount, $date);
     }
 
+    // Henter balancen på en given dato
     public function getBalanceAt(string $date): float
     {
         return $this->ledger->getBalanceAt($date);
     }
 
+    // Beregner og registerer månedlig rente
     public function runMonthlyInterest(string $date, float $rate): void
     {
         $this->ledger->runMonthlyInterest($date, $rate);
     }
 
+    // Retter en transaktion ved at angive dens nye beløb
     public function correctTransactionById(string $transactionId, float $newAmount): void
     {
         $this->ledger->correctTransactionById($transactionId, $newAmount);
     }
 
+    // Henter en transaktion ved dens ID
     public function getTransactionById(string $transactionId): ?\Ledger\Domain\Ledger\Transaction
     {
         return $this->ledger->getTransactionById($transactionId);
     }
 
+    // Henter alle transaktioner
     public function getAllTransactions(): array
     {
         return $this->ledger->getAllTransactions();
@@ -82,6 +90,7 @@ class Account
         return $this->ledger->getBalanceAt($date);
     }
 
+    // Henter antallet af transaktioner
     public function transactionCount(): int
     {
         return $this->ledger->transactionCount();

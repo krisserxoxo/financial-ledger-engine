@@ -2,6 +2,7 @@
 
 namespace Ledger\Domain\Ledger;
 
+// Transaction klasse der repræsenterer en enkelt transaktion
 class Transaction
 {
     public string $id;
@@ -32,8 +33,10 @@ class Transaction
         $this->correctionOf = $correctionOf;
     }
 
+    // Genererer et unikt ID til hver transaktion
     private function generateId(): string
     {
         return uniqid('txn_', true);
+        // Unikt ID med præfiks 'txn_'
     }
 }
