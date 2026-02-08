@@ -45,18 +45,25 @@ class Ledger
 
     public function runMonthlyInterest(string $date, float $rate): void
     {
-        $balance = $this->getBalanceAt($date);
+        $period = (new \DateTime($date))->format('Y-m');
 
-        if ($balance <= 0) {
-            return;
+        // tjek om der allerede er interest for perioden
+        foreach ($this->transactions as $tx) {
+            if ($tx->type === Transaction::TYPE_INTEREST && $tx->period === $period) {
+                return; // allerede oprettet
+            }
         }
+
+        $balance = $this->getBalanceAt($date);
+        if ($balance <= 0) return;
 
         $interest = round($balance * $rate, 2);
 
         $this->transactions[] = new Transaction(
             $date,
             $interest,
-            Transaction::TYPE_INTEREST
+            Transaction::TYPE_INTEREST,
+            $period
         );
     }
 
