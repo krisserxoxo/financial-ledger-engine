@@ -2,10 +2,23 @@
 
 namespace Ledger\Domain\Ledger;
 
+use Ledger\Domain\Audit\AuditLog;
+
 class Ledger
 {
     /** @var Transaction[] */
     private array $transactions = [];
+    private AuditLog $audit;
+
+    public function __construct(?AuditLog $audit = null)
+    {
+        $this->audit = $audit ?? new AuditLog();
+    }
+
+    public function getAuditLog(): AuditLog
+    {
+        return $this->audit;
+    }
 
     public function addTransaction(Transaction $transaction): void
     {
@@ -32,6 +45,11 @@ class Ledger
             $amount,
             Transaction::TYPE_DEPOSIT
         );
+
+        $this->audit->add('deposit', [
+            'date' => $date,
+            'amount' => $amount,
+        ]);
     }
 
     public function withdraw(float $amount, string $date): void
@@ -41,6 +59,11 @@ class Ledger
             -abs($amount),
             Transaction::TYPE_WITHDRAWAL
         );
+
+        $this->audit->add('withdraw', [
+            'date' => $date,
+            'amount' => $amount,
+        ]);
     }
 
     public function runMonthlyInterest(string $date, float $rate): void
@@ -65,6 +88,13 @@ class Ledger
             Transaction::TYPE_INTEREST,
             $period
         );
+
+        $this->audit->add('interest', [
+            'date' => $date,
+            'amount' => $interest,
+            'rate' => $rate,
+            'period' => $period,
+        ]);
     }
 
     public function removeInterestTransactionsFrom(string $date): void
@@ -132,6 +162,13 @@ class Ledger
                 $difference,
                 Transaction::TYPE_CORRECTION
             );
+
+            $this->audit->add('correction', [
+                'date' => $date,
+                'old_amount' => $oldAmount,
+                'new_amount' => $newAmount,
+                'difference' => $difference,
+            ]);
          }
 
          // historien ændrer sig = renter skal genberegnes

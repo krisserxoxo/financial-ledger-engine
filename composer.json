@@ -6,7 +6,8 @@
     "autoload": {
         "psr-4": {
             "Ledger\\Domain\\Ledger\\": "src/Domain/Ledger/",
-            "Ledger\\Domain\\Account\\": "src/Domain/Account/"
+            "Ledger\\Domain\\Account\\": "src/Domain/Account/",
+            "Ledger\\Domain\\Audit\\": "src/Domain/Audit/"
         }
     },
     "autoload-dev": {

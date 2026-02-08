@@ -6,6 +6,7 @@ use Ledger\Domain\Ledger\Ledger;
 use Ledger\Domain\Ledger\Transaction;
 use Ledger\Domain\Account\Exceptions\InsufficientFundsException;
 use Ledger\Domain\Account\Exceptions\AccountLockedException;
+use Ledger\Domain\Audit\AuditLog;
 
 class Account
 {
@@ -13,11 +14,21 @@ class Account
     public ?string $lockedUntil;
     private Ledger $ledger;
 
-    public function __construct(string $createdAt, ?string $lockedUntil = null)
+    public function __construct(string $createdAt, ?string $lockedUntil = null, ?AuditLog $audit = null)
     {
         $this->createdAt = $createdAt;
         $this->lockedUntil = $lockedUntil;
         $this->ledger = new Ledger();
+
+        $this->ledger->getAuditLog()->add('account_created', [
+            'created_at' => $createdAt,
+            'locked_until' => $lockedUntil
+        ]);
+    }
+
+    public function getAuditLog(): AuditLog
+    {
+        return $this->ledger->getAuditLog();
     }
 
     public function deposit(float $amount, string $date): void
