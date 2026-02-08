@@ -108,25 +108,34 @@ class Ledger
         }
     }
 
-    public function correctTransaction(string $transactionId, float $newAmount, string $date): void
+    public function correctTransaction(string $date, float $oldAmount, float $newAmount, float $rate = 0.01): void
     {
-        // find original transaction
-        $original = $this->transactions[$transactionId] ?? null;
+        $original = null;
+
+        foreach ($this->transactions as $transaction) {
+            if ($transaction->date === $date && $transaction->amount === $oldAmount) {
+                $original = $transaction;
+                break;
+            }
+        }
+
         if (!$original) {
             throw new \Exception("Transaction not found");
         }
 
-        // opret korrektion
-        $this->transactions[] = new Transaction(
-            $date,
-            $newAmount - $original->amount, // beløb der skal justeres
-            $original->type,
-            $original->period,
-            $transactionId // reference til original
-        );
+        // difference bliver en ny immutable transaction
+         $difference = $newAmount - $oldAmount;
 
-        // genberegn renter fra correction-dato
-        $this->recalculateMonthlyInterestFrom($date, 0.01);
+         if ($difference != 0) {
+            $this->transactions[] = new Transaction(
+                $date,
+                $difference,
+                Transaction::TYPE_CORRECTION
+            );
+         }
+
+         // historien ændrer sig = renter skal genberegnes
+         $this->recalculateMonthlyInterestFrom($date, $rate);
     }
 
     public function correctDeposit(string $date, float $oldAmount, float $newAmount): void
@@ -147,5 +156,10 @@ class Ledger
     public function hasMoreTransactionsThan(int $count): bool
     {
         return count($this->transactions) > $count;
+    }
+
+    public function transactionCount(): int
+    {
+        return count($this->transactions);
     }
 }

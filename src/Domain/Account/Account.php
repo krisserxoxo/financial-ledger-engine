@@ -42,4 +42,28 @@ class Account
     {
         return $this->ledger->getBalanceAt($date);
     }
+
+    public function runMonthlyInterest(string $date, float $rate): void
+    {
+        $this->ledger->runMonthlyInterest($date, $rate);
+    }
+
+    public function correctTransaction(string $date, float $oldAmount, float $newAmount): void
+    {
+        $this->ledger->correctTransaction($date, $oldAmount, $newAmount);
+    }
+
+    public function balance(?string $date = null): float
+    {
+        if ($date === null) {
+            $date = date('Y-m-d');
+        }
+
+        return $this->ledger->getBalanceAt($date);
+    }
+
+    public function transactionCount(): int
+    {
+        return $this->ledger->transactionCount();
+    }
 }
