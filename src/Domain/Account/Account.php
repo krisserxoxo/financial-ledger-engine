@@ -18,7 +18,7 @@ class Account
     {
         $this->createdAt = $createdAt;
         $this->lockedUntil = $lockedUntil;
-        $this->ledger = new Ledger();
+        $this->ledger = new Ledger($audit);
 
         $this->ledger->getAuditLog()->add('account_created', [
             'created_at' => $createdAt,
@@ -33,7 +33,7 @@ class Account
 
     public function deposit(float $amount, string $date): void
     {
-        $this->ledger->addTransaction(new Transaction($date, $amount));
+        $this->ledger->deposit($amount, $date);
     }
 
     public function withdraw(float $amount, string $date): void
@@ -46,7 +46,7 @@ class Account
             throw new InsufficientFundsException();
         }
 
-        $this->ledger->addTransaction(new Transaction($date, -$amount));
+        $this->ledger->withdraw($amount, $date);
     }
 
     public function getBalanceAt(string $date): float
